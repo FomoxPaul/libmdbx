@@ -9979,8 +9979,11 @@ static int mdbx_txn_write(MDBX_txn *txn, struct mdbx_iov_ctx *ctx) {
       break;
   }
 
-  if (ctx->iov_items)
+  if (ctx->iov_items) {
+    /* iov_page() frees dirty-pages and reset iov_items in case of failure. */
+    mdbx_tassert(txn, rc == MDBX_SUCCESS);
     rc = mdbx_iov_write(txn, ctx);
+  }
 
   while (r <= dl->length)
     dl->items[++w] = dl->items[r++];
